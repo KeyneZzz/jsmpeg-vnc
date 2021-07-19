@@ -56,7 +56,21 @@ void grabber_destroy(grabber_t *self) {
 
 void *grabber_grab(grabber_t *self) {
 	SelectObject(self->memoryDC, self->bitmap);
-	BitBlt(self->memoryDC, 0, 0, self->width, self->height, self->windowDC, self->crop.x, self->crop.y, SRCCOPY);
+	BitBlt(self->memoryDC, 0, 0, self->width, self->height, self->windowDC, self->crop.x, self->crop.y, SRCCOPY|CAPTUREBLT);
+	CURSORINFO cursor = { sizeof(cursor) };
+    	GetCursorInfo(&cursor);
+
+        RECT rect;
+        GetWindowRect(self->window, &rect);
+        ICONINFO info = { sizeof(info) };
+        GetIconInfo(cursor.hCursor, &info);
+        const int x = cursor.ptScreenPos.x - rect.left - rect.left - info.xHotspot;
+        const int y = cursor.ptScreenPos.y - rect.top - rect.top - info.yHotspot;
+        BITMAP bmpCursor = { 0 };
+        GetObject(info.hbmColor, sizeof(bmpCursor), &bmpCursor);
+        DrawIconEx(self->memoryDC, x, y, cursor.hCursor, bmpCursor.bmWidth, bmpCursor.bmHeight,
+            0, NULL, DI_NORMAL);
+
 	GetDIBits(self->memoryDC, self->bitmap, 0, self->height, self->pixels, (BITMAPINFO*)&(self->bitmapInfo), DIB_RGB_COLORS);
 	
 	return self->pixels;
