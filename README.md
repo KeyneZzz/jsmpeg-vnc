@@ -1,3 +1,8 @@
+
+### modified by KeyneZzz
+ - Include layered windows 
+ - Show cursor in stream
+
 # jsmpeg-vnc
 
 A low latency, high framerate screen sharing server and client, viewable in any modern browser.
